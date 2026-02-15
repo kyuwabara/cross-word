@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>クロスワードパズル</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>クロスワードパズル</h1>
+
+        <div class="controls">
+            <label>よこ <input type="number" id="width" value="8" min="5" max="15"></label>
+            <label>たて <input type="number" id="height" value="8" min="5" max="15"></label>
+            <button id="generate" class="btn btn-primary">あたらしいパズル</button>
+        </div>
+
+        <div id="loading" class="loading" style="display:none;">パズルをつくっています...</div>
+
+        <div id="puzzle-area" class="puzzle-area" style="display:none;">
+            <div class="grid-wrapper">
+                <table id="grid" class="grid"></table>
+            </div>
+
+            <div class="clues-container">
+                <div class="clues-section">
+                    <h2>よこのかぎ</h2>
+                    <ul id="clues-across"></ul>
+                </div>
+                <div class="clues-section">
+                    <h2>たてのかぎ</h2>
+                    <ul id="clues-down"></ul>
+                </div>
+            </div>
+
+            <div class="keyboard" id="keyboard"></div>
+
+            <div class="actions">
+                <button id="check" class="btn btn-success">こたえあわせ</button>
+                <button id="clear" class="btn btn-warning">ぜんぶけす</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
