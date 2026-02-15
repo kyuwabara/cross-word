@@ -92,6 +92,15 @@ h2 {
     background: #d35400;
 }
 
+.btn-print {
+    background: #8e44ad;
+    color: white;
+}
+
+.btn-print:active {
+    background: #6c3483;
+}
+
 /* ローディング */
 .loading {
     text-align: center;
@@ -176,6 +185,12 @@ h2 {
     pointer-events: none;
 }
 
+/* こたえあわせ時の正解表示 */
+.cell-char.answer-reveal {
+    color: #2471a3;
+    font-weight: bold;
+}
+
 /* ヒント */
 .clues-container {
     display: flex;
@@ -219,20 +234,25 @@ h2 {
     color: #2980b9;
 }
 
-/* キーボード */
+/* キーボード（五十音表レイアウト） */
 .keyboard {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 10px;
     align-items: center;
     width: 100%;
-    max-width: 520px;
 }
 
-.keyboard-row {
+.keyboard-section {
     display: flex;
-    gap: 4px;
-    justify-content: center;
+    flex-direction: row-reverse;
+    gap: 3px;
+}
+
+.keyboard-col {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
 }
 
 .key {
@@ -255,12 +275,28 @@ h2 {
     background: #d6eaf8;
 }
 
+.key-spacer {
+    visibility: hidden;
+}
+
+.keyboard-delete-row {
+    display: flex;
+    justify-content: center;
+}
+
 .key-delete {
-    width: 96px;
-    font-size: 16px;
+    width: 120px;
+    height: 46px;
+    font-size: 18px;
     background: #f0f0f0;
     color: #e74c3c;
     font-weight: bold;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    cursor: pointer;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .key-delete:active {
@@ -273,6 +309,8 @@ h2 {
     gap: 16px;
     margin-top: 8px;
     margin-bottom: 24px;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 /* メッセージ */
@@ -319,8 +357,8 @@ h2 {
     }
 
     .key-delete {
-        width: 80px;
-        font-size: 14px;
+        width: 100px;
+        font-size: 16px;
     }
 
     h1 {
@@ -330,5 +368,79 @@ h2 {
     .btn {
         padding: 8px 16px;
         font-size: 16px;
+    }
+}
+
+/* 印刷モード */
+@media print {
+    body {
+        background: white;
+        color: black;
+    }
+
+    .controls,
+    .keyboard,
+    .actions,
+    .message,
+    #loading {
+        display: none !important;
+    }
+
+    h1 {
+        color: black;
+        font-size: 24px;
+        margin-bottom: 12px;
+    }
+
+    h2 {
+        color: black;
+    }
+
+    .grid {
+        border: 2px solid black;
+    }
+
+    .grid td {
+        border: 1.5px solid black;
+    }
+
+    .grid td.black {
+        background: black !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .grid td.white {
+        background: white !important;
+    }
+
+    .grid td.selected,
+    .grid td.highlighted,
+    .grid td.correct,
+    .grid td.incorrect {
+        background: white !important;
+    }
+
+    /* 入力済みの文字と正解表示を隠す */
+    .cell-char {
+        visibility: hidden !important;
+    }
+
+    .cell-number {
+        color: black;
+    }
+
+    .clues-container {
+        max-width: 100%;
+    }
+
+    .clues-section li {
+        cursor: default;
+        background: none !important;
+        font-weight: normal !important;
+    }
+
+    .clue-number {
+        color: black;
     }
 }

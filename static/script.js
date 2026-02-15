@@ -6,15 +6,26 @@ let selectedRow = -1;
 let selectedCol = -1;
 let direction = "across"; // "across" or "down"
 
-// キーボードレイアウト
-const KEYBOARD_LAYOUT = [
-  ["あ", "い", "う", "え", "お", "か", "き", "く", "け", "こ"],
-  ["さ", "し", "す", "せ", "そ", "た", "ち", "つ", "て", "と"],
-  ["な", "に", "ぬ", "ね", "の", "は", "ひ", "ふ", "へ", "ほ"],
-  ["ま", "み", "む", "め", "も", "ら", "り", "る", "れ", "ろ"],
-  ["や", "ゆ", "よ", "わ", "ん", "が", "ぎ", "ぐ", "げ", "ご"],
-  ["ざ", "じ", "ず", "ぜ", "ぞ", "だ", "ぢ", "づ", "で", "ど"],
-  ["ば", "び", "ぶ", "べ", "ぼ", "ぱ", "ぴ", "ぷ", "ぺ", "ぽ"],
+// キーボードレイアウト（各配列が縦1列、右から左に並ぶ）
+const KEYBOARD_SEION = [
+  ["あ", "い", "う", "え", "お"],
+  ["か", "き", "く", "け", "こ"],
+  ["さ", "し", "す", "せ", "そ"],
+  ["た", "ち", "つ", "て", "と"],
+  ["な", "に", "ぬ", "ね", "の"],
+  ["は", "ひ", "ふ", "へ", "ほ"],
+  ["ま", "み", "む", "め", "も"],
+  ["や", "", "ゆ", "", "よ"],
+  ["ら", "り", "る", "れ", "ろ"],
+  ["わ", "", "", "", "ん"],
+];
+
+const KEYBOARD_DAKUTEN = [
+  ["が", "ぎ", "ぐ", "げ", "ご"],
+  ["ざ", "じ", "ず", "ぜ", "ぞ"],
+  ["だ", "ぢ", "づ", "で", "ど"],
+  ["ば", "び", "ぶ", "べ", "ぼ"],
+  ["ぱ", "ぴ", "ぷ", "ぺ", "ぽ"],
 ];
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -22,6 +33,9 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("generate").addEventListener("click", fetchPuzzle);
   document.getElementById("check").addEventListener("click", checkAnswers);
   document.getElementById("clear").addEventListener("click", clearAll);
+  document.getElementById("print").addEventListener("click", () => {
+    window.print();
+  });
 
   // 初回パズル生成
   fetchPuzzle();
@@ -130,12 +144,10 @@ function onCellClick(r, c) {
   removeCheckColors();
 
   if (selectedRow === r && selectedCol === c) {
-    // 同じセルをタップ → 方向切り替え
     direction = direction === "across" ? "down" : "across";
   } else {
     selectedRow = r;
     selectedCol = c;
-    // セルが属する方向を自動判定
     direction = getBestDirection(r, c);
   }
 
@@ -143,7 +155,6 @@ function onCellClick(r, c) {
 }
 
 function onClueClick(number, dir) {
-  // ヒント番号のセルを探す
   for (let r = 0; r < puzzleData.height; r++) {
     for (let c = 0; c < puzzleData.width; c++) {
       if (puzzleData.cell_numbers[r][c] === number) {
@@ -162,7 +173,7 @@ function getBestDirection(r, c) {
   const hasAcross = isPartOfWord(r, c, "across");
   const hasDown = isPartOfWord(r, c, "down");
 
-  if (hasAcross && hasDown) return direction; // 現在の方向を維持
+  if (hasAcross && hasDown) return direction;
   if (hasAcross) return "across";
   if (hasDown) return "down";
   return "across";
@@ -170,7 +181,6 @@ function getBestDirection(r, c) {
 
 function isPartOfWord(r, c, dir) {
   if (dir === "across") {
-    // 左右に隣接するセルがあるか
     const left = c > 0 && puzzleData.grid[r][c - 1] !== "";
     const right = c < puzzleData.width - 1 && puzzleData.grid[r][c + 1] !== "";
     return left || right;
@@ -188,7 +198,6 @@ function getWordCells(r, c, dir) {
   const dr = dir === "down" ? 1 : 0;
   const dc = dir === "across" ? 1 : 0;
 
-  // 単語の先頭を探す
   let sr = r,
     sc = c;
   while (
@@ -200,7 +209,6 @@ function getWordCells(r, c, dir) {
     sc -= dc;
   }
 
-  // 単語の末尾まで収集
   let cr = sr,
     cc = sc;
   while (
@@ -217,34 +225,29 @@ function getWordCells(r, c, dir) {
 }
 
 function updateHighlight() {
-  // すべてのハイライトをクリア
   const allCells = document.querySelectorAll(".grid td.white");
   allCells.forEach((td) => {
     td.classList.remove("selected", "highlighted");
   });
 
-  // ヒントのハイライトをクリア
   document.querySelectorAll(".clues-section li").forEach((li) => {
     li.classList.remove("clue-highlighted");
   });
 
   if (selectedRow < 0) return;
 
-  // 現在の単語をハイライト
   const wordCells = getWordCells(selectedRow, selectedCol, direction);
   wordCells.forEach(({ r, c }) => {
     const td = getCellElement(r, c);
     if (td) td.classList.add("highlighted");
   });
 
-  // 選択セルを強調
   const selectedTd = getCellElement(selectedRow, selectedCol);
   if (selectedTd) {
     selectedTd.classList.remove("highlighted");
     selectedTd.classList.add("selected");
   }
 
-  // 対応するヒントをハイライト
   if (wordCells.length > 0) {
     const startR = wordCells[0].r;
     const startC = wordCells[0].c;
@@ -278,14 +281,12 @@ function inputChar(ch) {
 
   userGrid[selectedRow][selectedCol] = ch;
 
-  // セルの表示を更新
   const td = getCellElement(selectedRow, selectedCol);
   if (td) {
     const charSpan = td.querySelector(".cell-char");
     if (charSpan) charSpan.textContent = ch;
   }
 
-  // 次のセルに移動
   moveToNextCell();
 }
 
@@ -295,7 +296,6 @@ function deleteChar() {
   removeCheckColors();
 
   if (userGrid[selectedRow][selectedCol] !== "") {
-    // 現在のセルの文字を消す
     userGrid[selectedRow][selectedCol] = "";
     const td = getCellElement(selectedRow, selectedCol);
     if (td) {
@@ -303,7 +303,6 @@ function deleteChar() {
       if (charSpan) charSpan.textContent = "";
     }
   } else {
-    // 前のセルに戻って消す
     moveToPrevCell();
     if (selectedRow >= 0) {
       userGrid[selectedRow][selectedCol] = "";
@@ -368,20 +367,22 @@ function checkAnswers() {
 
       const userChar = userGrid[r][c];
       const correctChar = puzzleData.grid[r][c];
+      const charSpan = td.querySelector(".cell-char");
 
-      if (userChar === "") {
-        // 未入力
-        td.classList.add("incorrect");
-      } else if (userChar === correctChar) {
+      if (userChar === correctChar) {
         correctCells++;
         td.classList.add("correct");
       } else {
         td.classList.add("incorrect");
+        // 正解を表示する
+        if (charSpan) {
+          charSpan.textContent = correctChar;
+          charSpan.classList.add("answer-reveal");
+        }
       }
     }
   }
 
-  // メッセージ表示
   removeMessage();
   const msg = document.createElement("div");
   msg.className = "message";
@@ -389,7 +390,7 @@ function checkAnswers() {
 
   if (correctCells === totalCells) {
     msg.classList.add("message-success");
-    msg.textContent = "すごい！ぜんぶせいかい！🎉";
+    msg.textContent = "すごい！ぜんぶせいかい！";
   } else {
     msg.classList.add("message-partial");
     msg.textContent = `${totalCells}もじちゅう ${correctCells}もじ せいかい！`;
@@ -402,6 +403,20 @@ function removeCheckColors() {
   document.querySelectorAll(".grid td").forEach((td) => {
     td.classList.remove("correct", "incorrect");
   });
+
+  // 正解表示を元のユーザー入力に戻す
+  document.querySelectorAll(".cell-char.answer-reveal").forEach((span) => {
+    span.classList.remove("answer-reveal");
+    const td = span.closest("td");
+    if (td && td.dataset.row !== undefined) {
+      const r = parseInt(td.dataset.row);
+      const c = parseInt(td.dataset.col);
+      if (!isNaN(r) && !isNaN(c)) {
+        span.textContent = userGrid[r][c];
+      }
+    }
+  });
+
   removeMessage();
 }
 
@@ -423,33 +438,24 @@ function clearAll() {
   renderGrid();
 }
 
+// キーボード構築（五十音表レイアウト：右から縦にあいうえお）
 function buildKeyboard() {
   const keyboard = document.getElementById("keyboard");
   keyboard.innerHTML = "";
 
-  for (const row of KEYBOARD_LAYOUT) {
-    const rowDiv = document.createElement("div");
-    rowDiv.className = "keyboard-row";
+  // 清音
+  const seionSection = buildKeyboardSection(KEYBOARD_SEION);
+  keyboard.appendChild(seionSection);
 
-    for (const ch of row) {
-      const btn = document.createElement("button");
-      btn.className = "key";
-      btn.textContent = ch;
-      btn.addEventListener("click", (e) => {
-        e.preventDefault();
-        inputChar(ch);
-      });
-      rowDiv.appendChild(btn);
-    }
-
-    keyboard.appendChild(rowDiv);
-  }
+  // 濁音・半濁音
+  const dakutenSection = buildKeyboardSection(KEYBOARD_DAKUTEN);
+  keyboard.appendChild(dakutenSection);
 
   // 削除ボタン
   const delRow = document.createElement("div");
-  delRow.className = "keyboard-row";
+  delRow.className = "keyboard-delete-row";
   const delBtn = document.createElement("button");
-  delBtn.className = "key key-delete";
+  delBtn.className = "key-delete";
   delBtn.textContent = "けす";
   delBtn.addEventListener("click", (e) => {
     e.preventDefault();
@@ -457,4 +463,35 @@ function buildKeyboard() {
   });
   delRow.appendChild(delBtn);
   keyboard.appendChild(delRow);
+}
+
+function buildKeyboardSection(columns) {
+  const section = document.createElement("div");
+  section.className = "keyboard-section";
+
+  for (const col of columns) {
+    const colDiv = document.createElement("div");
+    colDiv.className = "keyboard-col";
+
+    for (const ch of col) {
+      if (ch === "") {
+        const spacer = document.createElement("div");
+        spacer.className = "key key-spacer";
+        colDiv.appendChild(spacer);
+      } else {
+        const btn = document.createElement("button");
+        btn.className = "key";
+        btn.textContent = ch;
+        btn.addEventListener("click", (e) => {
+          e.preventDefault();
+          inputChar(ch);
+        });
+        colDiv.appendChild(btn);
+      }
+    }
+
+    section.appendChild(colDiv);
+  }
+
+  return section;
 }
