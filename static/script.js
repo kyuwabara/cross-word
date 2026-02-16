@@ -30,15 +30,17 @@ const KEYBOARD_DAKUTEN = [
 
 document.addEventListener("DOMContentLoaded", () => {
   buildKeyboard();
-  document.getElementById("generate").addEventListener("click", fetchPuzzle);
-  document.getElementById("check").addEventListener("click", checkAnswers);
-  document.getElementById("clear").addEventListener("click", clearAll);
-  document.getElementById("print").addEventListener("click", () => {
+
+  // 初回パズル生成（最優先で実行）
+  fetchPuzzle();
+
+  // ボタンイベント登録
+  document.getElementById("generate")?.addEventListener("click", fetchPuzzle);
+  document.getElementById("check")?.addEventListener("click", checkAnswers);
+  document.getElementById("clear")?.addEventListener("click", clearAll);
+  document.getElementById("print")?.addEventListener("click", () => {
     window.print();
   });
-
-  // 初回パズル生成
-  fetchPuzzle();
 });
 
 async function fetchPuzzle() {
