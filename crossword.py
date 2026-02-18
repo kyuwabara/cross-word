@@ -57,22 +57,25 @@ class CrosswordGenerator:
     def _try_generate(self):
         words = list(self.word_list)
         random.shuffle(words)
-        words.sort(key=lambda x: len(x[0]), reverse=True)
 
         if not words:
             return
 
-        # 最初の単語を中央に横向きで配置
-        first_word, first_clue = words[0]
+        # 最初の単語をランダムに選ぶ（横幅に収まるものから）
+        first_candidates = [
+            (w, c) for w, c in words if len(to_grid_form(w)) <= self.width
+        ]
+        if not first_candidates:
+            return
+        first_word, first_clue = random.choice(first_candidates)
+        words = [(w, c) for w, c in words if w != first_word]
+
         grid_word = to_grid_form(first_word)
         col = (self.width - len(grid_word)) // 2
         row = self.height // 2
+        self._place(first_word, first_clue, row, col, ACROSS)
 
-        if col >= 0 and col + len(grid_word) <= self.width:
-            self._place(first_word, first_clue, row, col, ACROSS)
-
-        # 残りの単語を配置
-        for word, clue in words[1:]:
+        for word, clue in words:
             placements = self._find_placements(word)
             if placements:
                 placements.sort(key=lambda p: p["score"], reverse=True)
