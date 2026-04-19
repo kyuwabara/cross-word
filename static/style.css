@@ -12,7 +12,7 @@ body {
 }
 
 .container {
-    max-width: 900px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 16px;
 }
@@ -109,12 +109,27 @@ h2 {
     color: #666;
 }
 
-/* パズルエリア */
+/* パズルエリア（左右2ペイン） */
 .puzzle-area {
+    display: flex;
+    flex-direction: row;
+    gap: 24px;
+    align-items: flex-start;
+}
+
+.puzzle-left {
+    flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 16px;
+}
+
+.puzzle-right {
+    position: sticky;
+    top: 16px;
+    flex-shrink: 0;
 }
 
 /* グリッド */
@@ -240,7 +255,6 @@ h2 {
     flex-direction: column;
     gap: 10px;
     align-items: center;
-    width: 100%;
 }
 
 .keyboard-section {
@@ -333,7 +347,18 @@ h2 {
     color: #e67e22;
 }
 
-/* レスポンシブ */
+/* レスポンシブ：狭い画面では縦並びに戻す */
+@media (max-width: 900px) {
+    .puzzle-area {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .puzzle-right {
+        position: static;
+    }
+}
+
 @media (max-width: 540px) {
     .grid td {
         width: 44px;

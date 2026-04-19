@@ -52,8 +52,9 @@ async function fetchPuzzle() {
   removeMessage();
 
   try {
-    const res = await fetch(`/api/generate?width=${width}&height=${height}`);
-    const data = await res.json();
+    // ローディング表示を描画させるため一度 UI を開放する
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    const data = generateCrossword(width, height);
 
     if (data.error) {
       document.getElementById("loading").textContent = data.error;
